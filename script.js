@@ -1,7 +1,30 @@
 let display = document.getElementById("display");
 let currentInput = "";
+let operator = "";
+let previousValue = "";
 
-// Appending number based on the input
+// function for appending operators based on inputs
+function appendOperator(op) {
+    if (currentInput === "" && previousValue === "") return;
+    
+    if (currentInput === "" && previousValue !== "") {
+        operator = op;
+        display.innerText = previousValue + operator;
+        return;
+    }
+    
+    if (previousValue !== "" && operator !== "" && currentInput !== "") {
+        calculateResult();
+    }
+    
+    operator = op;
+    previousValue = currentInput;
+    currentInput = "";
+    
+    display.innerText = previousValue + operator;
+}
+
+// Functions for appending numbers, and decimal point
 function appendNumber(num) {
     if (currentInput === "0" && num !== ".") {
         currentInput = "";
@@ -9,41 +32,54 @@ function appendNumber(num) {
     currentInput += num;
     display.innerText = currentInput;
 }
-// Appending operator based on the input
-function appendOperator(operator) {
-    if (currentInput.length === 0) return;
-    if (isNaN(currentInput[currentInput.length - 1])) return;
-    currentInput += operator;
-    display.innerText = currentInput;
-}
 
-// Clearing the display
+// function for clearing the display
 function clearDisplay() {
     currentInput = "";
+    previousValue = "";
+    operator = "";
     display.innerText = "0";
+    console.log(currentInput);
 }
 
-// Toggle sign
-function toggleSign() {
-    if (currentInput === "") return;
-    currentInput = currentInput.startsWith("-") ? currentInput.slice(1) : "-" + currentInput;
-    display.innerText = currentInput;
-}
-
-// Percentage calculation
+// function for calculating percentage
 function percentage() {
     if (currentInput === "") return;
     currentInput = (parseFloat(currentInput) / 100).toString();
     display.innerText = currentInput;
 }
 
-// calculateResult function
+// function for calculating the result
 function calculateResult() {
-    try {
-        currentInput = eval(currentInput).toString();
-        display.innerText = currentInput;
-    } catch {
-        display.innerText = "Error";
-        currentInput = "";
+    if (previousValue === "" || currentInput === "" || operator === "") return;
+
+    let num1 = parseFloat(previousValue);
+    let num2 = parseFloat(currentInput);
+    let result = 0;
+
+    switch (operator) {
+        case "+":
+            result = num1 + num2;
+            break;
+        case "-":
+            result = num1 - num2;
+            break;
+        case "*":
+            result = num1 * num2;
+            break;
+        case "/":
+            if (num2 === 0) {
+                display.innerText = "Error";
+                return;
+            }
+            result = num1 / num2;
+            break;
+        default:
+            return;
     }
+
+    display.innerText = result.toString();
+    currentInput = result.toString();
+    previousValue = "";
+    operator = "";
 }
